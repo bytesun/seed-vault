@@ -744,7 +744,7 @@ persistent actor Self {
     // No payment required for key derivation during encryption
     try {
       let input : Blob = Text.encodeUtf8(normalizedName);
-      let { encrypted_key } = await (with cycles = 26_153_846_153) IC.vetkd_derive_key({
+      let { encrypted_key } = await (with cycles = DERIVE_CYCLE_COST) IC.vetkd_derive_key({
         input;
         context = context(caller);
         key_id = keyId();
@@ -754,7 +754,7 @@ persistent actor Self {
       audit("Derived encrypted symmetric key for seed", caller);
       encrypted_key;
     } catch (e) {
-      throw Error.reject("Failed to derive encrypted key");
+      throw Error.reject("Failed to derive encrypted key: " # Error.message(e));
     };
   };
 
@@ -961,7 +961,7 @@ persistent actor Self {
 
             try {
               let input : Blob = Text.encodeUtf8(normalizedName);
-              let { encrypted_key } = await (with cycles = 26_153_846_153) IC.vetkd_derive_key({
+              let { encrypted_key } = await (with cycles = DERIVE_CYCLE_COST) IC.vetkd_derive_key({
                 input;
                 context = context(caller);
                 key_id = keyId();

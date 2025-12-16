@@ -882,8 +882,6 @@ function App() {
       await loadSeeds();
       await loadAccount();
       setStatus('Seed saved successfully (no cost)');
-
-      backendActor.convert_collected_icp?.().catch(() => {});
     } catch (error) {
       setStatus('Failed to save seed. Please try again.');
     } finally {
