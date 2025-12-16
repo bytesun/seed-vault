@@ -741,18 +741,7 @@ persistent actor Self {
       case (#ok(())) {};
     };
 
-    let { icp_e8s } = await estimate_cost("derive", 1);
-    switch (assertCostWithinLimit(icp_e8s)) {
-      case (#err(msg)) { throw Error.reject(msg) };
-      case (#ok(())) {};
-    };
-    var charged = false;
-
-    switch (await chargeUser(caller, icp_e8s)) {
-      case (#err(msg)) { throw Error.reject(msg) };
-      case (#ok(_)) { charged := true };
-    };
-
+    // No payment required for key derivation during encryption
     try {
       let input : Blob = Text.encodeUtf8(normalizedName);
       let { encrypted_key } = await (with cycles = 26_153_846_153) IC.vetkd_derive_key({
@@ -762,14 +751,9 @@ persistent actor Self {
         transport_public_key;
       });
 
-      let amountToConvert = if (icp_e8s > ICP_TO_CYCLES_BUFFER_E8S) { icp_e8s - ICP_TO_CYCLES_BUFFER_E8S } else { 0 };
-      ignore await convertToCycles(amountToConvert);
       audit("Derived encrypted symmetric key for seed", caller);
       encrypted_key;
     } catch (e) {
-      if (charged) {
-        await refundUser(caller, icp_e8s, "derive key: " # Error.message(e));
-      };
       throw Error.reject("Failed to derive encrypted key");
     };
   };
@@ -812,21 +796,7 @@ persistent actor Self {
       case (#ok(())) {};
     };
 
-    let { icp_e8s } = await estimate_cost("encrypt", 1);
-    switch (assertCostWithinLimit(icp_e8s)) {
-      case (#err(msg)) { return #err(msg) };
-      case (#ok(())) {};
-    };
-    var charged = false;
-    let amountToConvert = if (icp_e8s > ICP_TO_CYCLES_BUFFER_E8S) { icp_e8s - ICP_TO_CYCLES_BUFFER_E8S } else { 0 };
-
-    if (icp_e8s > 0) {
-      switch (await chargeUser(caller, icp_e8s)) {
-        case (#err(msg)) { return #err(msg) };
-        case (#ok(_)) { charged := true };
-      };
-    };
-
+    // No payment required for saving seed
     try {
       switch (findOwnerIndex(caller)) {
         case (?idx) {
@@ -849,15 +819,9 @@ persistent actor Self {
         };
       };
 
-      if (icp_e8s > 0) {
-        ignore await convertToCycles(amountToConvert);
-      };
       audit("Added seed " # normalizedName, caller);
       #ok(());
     } catch (e) {
-      if (charged) {
-        await refundUser(caller, icp_e8s, "add seed: " # Error.message(e));
-      };
       #err("Failed to save seed. Please try again.");
     };
   };

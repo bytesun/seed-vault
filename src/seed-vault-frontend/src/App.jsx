@@ -858,16 +858,9 @@ function App() {
         return;
       }
 
-      const [encryptEstimate, deriveEstimate] = await Promise.all([
-        backendActor.estimate_cost('encrypt', 1),
-        backendActor.estimate_cost('derive', 1),
-      ]);
-      const fallback = encryptEstimate.fallback_used || deriveEstimate.fallback_used;
-      const required = Number(encryptEstimate.icp_e8s + deriveEstimate.icp_e8s) + LEDGER_FEE_E8S;
+      // No payment required for saving seeds
       const confirmed = window.confirm(
-        `Saving "${trimmedName}" will cost ~${formatIcp(required)} ICP (including ledger fee and buffer).${
-          fallback ? ' (Using fallback exchange rate estimate.)' : ''
-        } Continue?`,
+        `Save "${trimmedName}"? This will encrypt and store your seed phrase securely.`,
       );
       if (!confirmed) {
         setIsAddingSeed(false);
@@ -875,12 +868,7 @@ function App() {
         return;
       }
 
-      setStatus('Attempting payment for encryption...');
       setLoading(true);
-      await waitForBalance(
-        required,
-        `Please transfer at least ${formatIcp(required)} ICP for encryption and key derivation.`,
-      );
       setStatus(`Encrypting and saving "${trimmedName}"...`);
       const key = await deriveSymmetricKey(trimmedName);
       const { cipher, iv } = await encrypt(trimmedPhrase, key);
@@ -893,7 +881,7 @@ function App() {
       setPhrase('');
       await loadSeeds();
       await loadAccount();
-      setStatus('Seed saved');
+      setStatus('Seed saved successfully (no cost)');
 
       backendActor.convert_collected_icp?.().catch(() => {});
     } catch (error) {
