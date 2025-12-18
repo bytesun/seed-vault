@@ -382,6 +382,7 @@ function App() {
 
     const loginOptions = {
       identityProvider: II_URL,
+      derivationOrigin: 'https://s7hdn-gqaaa-aaaab-ac3sa-cai.icp0.io',
       onSuccess: async () => {
         const loggedInIdentity = client.getIdentity();
         setIdentity(loggedInIdentity);

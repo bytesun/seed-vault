@@ -45,6 +45,10 @@ service : {
       owner: text;
       subaccount: blob;
     });
+  get_audit_log: () -> (vec record {
+                              int;
+                              text;
+                            }) query;
   get_seed_cipher: (name: text) -> (Result_2);
   get_seed_cipher_and_key: (name: text, transport_public_key: blob) ->
    (Result_1);

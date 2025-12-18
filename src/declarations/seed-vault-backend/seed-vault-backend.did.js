@@ -46,6 +46,11 @@ export const idlFactory = ({ IDL }) => {
         ],
         [],
       ),
+    'get_audit_log' : IDL.Func(
+        [],
+        [IDL.Vec(IDL.Tuple(IDL.Int, IDL.Text))],
+        ['query'],
+      ),
     'get_seed_cipher' : IDL.Func([IDL.Text], [Result_2], []),
     'get_seed_cipher_and_key' : IDL.Func(
         [IDL.Text, IDL.Vec(IDL.Nat8)],

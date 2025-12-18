@@ -39,6 +39,7 @@ export interface _SERVICE {
       'canister' : string,
     }
   >,
+  'get_audit_log' : ActorMethod<[], Array<[bigint, string]>>,
   'get_seed_cipher' : ActorMethod<[string], Result_2>,
   'get_seed_cipher_and_key' : ActorMethod<
     [string, Uint8Array | number[]],
